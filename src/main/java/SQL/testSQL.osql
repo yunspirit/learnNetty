@@ -1,0 +1,35 @@
+--name:testSQL
+--author:cloud
+--create time:2019-01-21 12:03
+select * from t_ts_check_result;
+
+SELECT item_id
+from tbcdm.dim_tb_itm
+where ds = MAX_PT("tbcdm.dim_tb_itm")
+LIMIT 10;
+
+drop table if exists t_ovs_logistics_ext_test;
+create table if  not exists t_ovs_logistics_ext_test(
+    one string  ,
+    two string
+);
+--partitioned by (sale_date string);
+
+insert into table t_ovs_logistics_ext_test values ("a","a") ,("b,c","c,b"),("1,2,3","3,2,1");
+select * from t_ovs_logistics_ext_test;
+
+insert into table t_ovs_logistics_ext_test values ("a","a,b");
+select str_to_array_compare(one,two)
+from t_ovs_logistics_ext_test;
+
+
+
+
+
+
+
+
+
+
+
+

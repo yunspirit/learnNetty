@@ -1,0 +1,27 @@
+--name:分类目货品体积计算
+--author:cloud
+-- 按照当月平均在库库存总体积进行拆解
+-- 拆解逻辑为：取每月5，15，25 三天备货仓库存总体积平均值，按一级类目维度求和后分摊仓租费用，得出 一级类目维度的仓租
+
+--create time:2019-01-25 11:15
+
+
+
+select  t_ts_scitem_hk.cate,  SUM(t_ts_scitem_hk.vol*t_ts_quantity_hk.num) AS volu
+from
+(
+select sc_item_id AS scitem, sc_item_volume_fixed AS vol, cate_level1_id AS cate
+from tbcdm.dim_tb_itm_sc
+where ds = MAX_PT("tbcdm.dim_tb_itm_sc")
+AND supplier_id = 3519227058;
+AND sc_item_status in ("0" ,"1")
+) AS t_ts_scitem_hk left join
+(
+select item_id AS scitem , sellable_quantity AS num ,
+from alinv_db_sync.ipm_trade_inventory_dist
+where pt = MAX_PT("alinv_db_sync.ipm_trade_inventory_dist")
+AND dist_type = 3
+AND user_id = 3519227058;
+) AS t_ts_quantity_hk
+on t_ts_scitem_hk.scitem = t_ts_quantity_hk.scitem
+group by t_ts_scitem_hk.cate
